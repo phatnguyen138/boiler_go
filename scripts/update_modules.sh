@@ -1,19 +1,12 @@
 #!/bin/bash
 
-# Check if a new name argument is provided
-if [ -z "$1" ]; then
-  echo "Error: Please provide a new name as an argument."
-  exit 1
-fi
+# Ask for the new project name
+read -p "Enter your new project name: " project_name
 
-# Export variables with the script argument and the original name
-export NEW="$1"
-export CUR="bolier_go" # Example: github.com/user/old-lame-name
+# Update the go.mod file
+sed -i '' "s|module bolier_go|module $project_name|" go.mod
 
-# Update module name
-go mod edit -module "$NEW"
+# Update all Go import paths, but exclude the current script
+find . -type f -name "*.go" ! -path "./scripts/update_modules.sh" -exec sed -i '' "s|bolier_go|$project_name|g" {} +
 
-# Update Go files using sed (alternative to perl)
-find . -type f -name "*.go" -exec sed -i "s/$CUR/$NEW/g" {} \;
-
-echo "Successfully updated module name and Go files."
+echo "Project $project_name setup completed!"
